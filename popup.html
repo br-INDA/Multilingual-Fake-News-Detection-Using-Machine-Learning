@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <title>FakeShield</title>
+  <link rel="stylesheet" href="styles.css"/>
+</head>
+<body>
+
+<!-- ── HEADER ──────────────────────────────────────────── -->
+<header class="header">
+  <div class="header-left">
+    <div class="shield-icon">🛡️</div>
+    <div>
+      <div class="app-name">FakeShield</div>
+      <div class="app-sub">Multilingual Fake News Detector</div>
+    </div>
+  </div>
+  <button id="settingsBtn" class="icon-btn" title="Settings">⚙️</button>
+</header>
+
+<!-- ── ENGINE BADGE ─────────────────────────────────────── -->
+<div class="engine-bar">
+  <span class="engine-label">Engine:</span>
+  <span id="engineBadge" class="badge badge-offline">Offline ML (no API needed)</span>
+  <span id="engineStatus" class="engine-status"></span>
+</div>
+
+<!-- ── MAIN PANEL ────────────────────────────────────────── -->
+<main id="mainPanel">
+
+  <!-- Language pills -->
+  <div class="section-label">Language</div>
+  <div class="lang-pills" id="langPills">
+    <button class="pill active" data-lang="auto">Auto-detect</button>
+    <button class="pill" data-lang="Hindi">हिन्दी</button>
+    <button class="pill" data-lang="Marathi">मराठी</button>
+    <button class="pill" data-lang="Gujarati">ગુજરાતી</button>
+    <button class="pill" data-lang="Telugu">తెలుగు</button>
+  </div>
+
+  <!-- Source tabs -->
+  <div class="section-label mt10">Analyse</div>
+  <div class="source-tabs">
+    <button class="tab active" id="tabPage">Current Page</button>
+    <button class="tab" id="tabSelected">Selected Text</button>
+    <button class="tab" id="tabPaste">Paste Text</button>
+  </div>
+
+  <textarea id="pasteArea" class="paste-area hidden"
+            placeholder="Paste Hindi / Marathi / Gujarati / Telugu news here…"
+            rows="5"></textarea>
+
+  <button id="analyseBtn" class="analyse-btn">
+    <span id="btnLabel">Analyse Article</span>
+    <span id="btnSpinner" class="spinner hidden"></span>
+  </button>
+
+  <!-- ── RESULT CARD ─────────────────────────────────────── -->
+  <div id="resultCard" class="result-card hidden">
+
+    <div id="verdictBanner" class="verdict-banner">
+      <span id="verdictIcon" class="verdict-icon"></span>
+      <div>
+        <div id="verdictText" class="verdict-text"></div>
+        <div id="verdictSub"  class="verdict-sub"></div>
+      </div>
+      <span id="engineTag" class="engine-tag"></span>
+    </div>
+
+    <!-- Confidence bar -->
+    <div class="conf-row">
+      <span class="conf-label">Confidence</span>
+      <div class="conf-bar-wrap">
+        <div id="confBar" class="conf-bar"></div>
+      </div>
+      <span id="confPct" class="conf-pct"></span>
+    </div>
+
+    <!-- Signals -->
+    <div class="section-label px14 mt10" data-key="signals">ML Signals Detected</div>
+    <div id="signalsList" class="signals-list"></div>
+
+    <!-- Features -->
+    <div class="section-label px14 mt10" data-key="features">Top Predictive Features</div>
+    <div id="featureList" class="feature-list"></div>
+
+    <!-- Explanation -->
+    <div class="section-label px14 mt10" data-key="explanation">Explanation</div>
+    <div id="explanation" class="explanation-box"></div>
+
+    <!-- Language note -->
+    <div id="langNote" class="lang-note hidden"></div>
+
+    <!-- Actions -->
+    <div class="action-row">
+      <button class="action-btn" id="copyBtn">📋 Copy Report</button>
+      <button class="action-btn" id="resetBtn">🔄 Reset</button>
+    </div>
+  </div>
+
+  <div id="errorBox" class="error-box hidden"></div>
+</main>
+
+<!-- ── SETTINGS PANEL ─────────────────────────────────────── -->
+<div id="settingsPanel" class="settings-panel hidden">
+  <div class="settings-header">
+    <span>⚙️ Settings</span>
+    <button id="closeSettings" class="icon-btn" style="color:#374151">✕</button>
+  </div>
+
+  <!-- Engine selector -->
+  <div class="section-label">Detection Engine</div>
+  <div class="engine-cards" id="engineCards">
+
+    <label class="engine-card" data-engine="offline">
+      <input type="radio" name="engine" value="offline" checked/>
+      <div class="engine-card-body">
+        <div class="engine-card-title">🔒 Offline ML <span class="free-tag">FREE · No key</span></div>
+        <div class="engine-card-desc">
+          Rule-based classifier using chi2 + L1 coef patterns
+          from our 10-phase training pipeline. Works instantly,
+          no internet required.
+        </div>
+      </div>
+    </label>
+
+    <label class="engine-card" data-engine="groq">
+      <input type="radio" name="engine" value="groq"/>
+      <div class="engine-card-body">
+        <div class="engine-card-title">⚡ Groq (Llama) <span class="free-tag">FREE tier</span></div>
+        <div class="engine-card-desc">
+          Uses Llama-3 on Groq's free API. Fast and accurate.
+          Get a free key at <b>console.groq.com</b> — no credit card needed.
+        </div>
+      </div>
+    </label>
+
+    <label class="engine-card" data-engine="gemini">
+      <input type="radio" name="engine" value="gemini"/>
+      <div class="engine-card-body">
+        <div class="engine-card-title">✨ Google Gemini <span class="free-tag">FREE tier</span></div>
+        <div class="engine-card-desc">
+          Uses Gemini 1.5 Flash. Free API key at
+          <b>aistudio.google.com</b> — no credit card needed.
+        </div>
+      </div>
+    </label>
+
+    <label class="engine-card" data-engine="anthropic">
+      <input type="radio" name="engine" value="anthropic"/>
+      <div class="engine-card-body">
+        <div class="engine-card-title">🧠 Claude (Anthropic) <span class="paid-tag">Paid</span></div>
+        <div class="engine-card-desc">
+          Highest accuracy. Requires a paid API key from
+          <b>console.anthropic.com</b>.
+        </div>
+      </div>
+    </label>
+  </div>
+
+  <!-- API key input (hidden for offline) -->
+  <div id="apiKeySection" class="hidden mt10">
+    <div class="section-label" id="apiKeyLabel">API Key</div>
+    <input type="password" id="apiKeyInput" class="setting-input"
+           placeholder="Paste your API key here…"/>
+    <div class="setting-hint" id="apiKeyHint"></div>
+  </div>
+
+  <!-- Sensitivity -->
+  <div class="section-label mt10">Sensitivity</div>
+  <select id="sensitivitySelect" class="setting-input">
+    <option value="strict">Strict — flag anything suspicious</option>
+    <option value="balanced" selected>Balanced — recommended</option>
+    <option value="lenient">Lenient — only obvious fake news</option>
+  </select>
+
+  <button id="saveSettings" class="analyse-btn mt12">Save Settings</button>
+  <div id="saveMsg" class="save-msg hidden">✓ Saved!</div>
+
+  <!-- How to get free keys guide -->
+  <div class="free-guide mt12">
+    <div class="free-guide-title">📋 How to get a FREE API key</div>
+    <div class="free-guide-body">
+      <b>Groq (recommended):</b><br/>
+      1. Go to <b>console.groq.com</b><br/>
+      2. Sign up (Google/GitHub login, no card needed)<br/>
+      3. Click "API Keys" → "Create API Key"<br/>
+      4. Copy and paste above. Free limit: 14,400 req/day<br/><br/>
+      <b>Google Gemini:</b><br/>
+      1. Go to <b>aistudio.google.com</b><br/>
+      2. Sign in with Google account<br/>
+      3. Click "Get API Key" → "Create API key"<br/>
+      4. Free limit: 1,500 req/day
+    </div>
+  </div>
+</div>
+
+<script src="ml_engine.js"></script>
+<script src="popup.js"></script>
+</body>
+</html>
